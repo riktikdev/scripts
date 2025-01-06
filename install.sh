@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Ensure the script is running in bash
+if [ -z "$BASH_VERSION" ]; then
+	echo "This script requires bash. Restarting with bash..."
+	exec bash "$0" "$@"
+	exit
+fi
+
 # Install function
 install() {
 	# Check if the script is being run as root
@@ -75,23 +82,19 @@ install() {
 
 	# Install optional packages
 	printf "${YELLOW}>> Installing optional packages${NC}\n"
-	declare -A packages=(
-		["neovim"]="neovim"
-		["mc"]="mc"
-		["btop"]="btop"
-	)
+	packages=("neovim" "mc" "btop")
 
-	for package in "${!packages[@]}"; do
-		read -p "Do you want to install ${packages[$package]}? (y/n): " response
+	for package in "${packages[@]}"; do
+		read -p "Do you want to install $package? (y/n): " response
 		if [ "$response" == "y" ]; then
-			printf "${YELLOW}>> Installing ${packages[$package]}${NC}\n"
-			if sudo apt install "${packages[$package]}" -y; then
-				printf "${GREEN}${packages[$package]} installed successfully${NC}\n"
+			printf "${YELLOW}>> Installing $package${NC}\n"
+			if sudo apt install "$package" -y; then
+				printf "${GREEN}$package installed successfully${NC}\n"
 			else
-				printf "${RED}Failed to install ${packages[$package]}${NC}\n"
+				printf "${RED}Failed to install $package${NC}\n"
 			fi
 		else
-			printf "${YELLOW}Skipping ${packages[$package]} installation${NC}\n"
+			printf "${YELLOW}Skipping $package installation${NC}\n"
 		fi
 	done
 
